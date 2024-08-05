@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Real-Time Vehicle Tracker</title>
+  <style>
+    #map {
+      height: 100vh;
+      width: 100%;
+    }
+  </style>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+</head>
+<body>
+
+  <div id="map"></div>
+
+  <script>
+    // Initialize the map
+    var map = L.map('map').setView([17.385044, 78.486671], 13);
+
+    // Set up the OSM layer
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 18,
+    }).addTo(map);
+
+    // Dummy vehicle marker
+    var vehicleMarker = L.marker([17.385044, 78.486671]).addTo(map);
+    var polyline = L.polyline([]).addTo(map);
+
+    // Fetch vehicle data and update marker
+    async function updateVehiclePosition() {
+      const response = await fetch('http://localhost:3000/api/vehicle');
+      const data = await response.json();
+
+      // Update marker position
+      data.forEach(point => {
+        var latLng = [point.latitude, point.longitude];
+        vehicleMarker.setLatLng(latLng);
+        polyline.addLatLng(latLng);
+      });
+    }
+
+    // Update vehicle position every 5 seconds
+    setInterval(updateVehiclePosition, 5000);
+
+  </script>
+</body>
+</html>
